@@ -1,4 +1,5 @@
 use core::fmt;
+use std::error::Error;
 use core::mem::MaybeUninit;
 #[repr(transparent)]
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
@@ -51,6 +52,8 @@ impl fmt::Display for WasmedgeSdErrno {
         write!(f, "{} (error {})", self.name(), self.0)
     }
 }
+
+impl Error for WasmedgeSdErrno {}
 
 #[cfg(feature = "std")]
 extern crate std;

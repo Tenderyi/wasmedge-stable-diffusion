@@ -297,3 +297,16 @@ impl<'a> ImageToImage<'a> {
         self
     }
 }
+
+//解析命令行参数，尤指 --mode
+impl std::str::FromStr for Task {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "txt2img" => Ok(Task::TextToImage),
+            "img2img" => Ok(Task::ImageToImage),
+            _ => Err(format!("Invalid mode: {}", s)),
+        }
+    }
+}
