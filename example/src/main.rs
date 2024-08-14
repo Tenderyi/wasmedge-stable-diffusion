@@ -52,6 +52,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .help("the prompt to render")
                 .default_value("a lovely cat"),
         )
+        .arg(
+            Arg::new("negative_prompt")
+                .short('n')
+                .long("negative-prompt")
+                .value_name("NEGATIVE_PROMPT")
+                .help("the negative prompt")
+                .default_value(""),
+        )
         .after_help("run at the dir of .wasm, Example:wasmedge --dir .:. ./target/wasm32-wasi/release/wasmedge_stable_diffusion_example.wasm -m ../../models/stable-diffusion-v1-4-Q8_0.gguf -M img2img\n")
         .get_matches();
     
@@ -102,28 +110,44 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ))?;
     println!("[INFO] prompt: {}", prompt);
 
-
-    
+    //negative_prompt
+    let negative_prompt = matches
+        .get_one::<String>("negative_prompt")
+        .ok_or(String::from(
+            "Fail to parse the `negative-prompt` option from the command line.",
+        ))?;
+    println!("[INFO] negative_prompt: {}", negative_prompt);    
 
     //run the model
     let context = StableDiffusion::new(task, sd_model);
-    match context.create_context() {
-        Ok(Context::TextToImage(mut text_to_image)) => {
-            println!("[INFO]text2img");
-            text_to_image
-                .set_prompt(prompt)
-                .set_output_path(output)
-                .generate()?;
+    match sd_mode.as_str(){
+        "txt2img" => {
+            if let Context::TextToImage(mut text_to_image) = context.create_context().unwrap() {
+                text_to_image
+                    .set_prompt(prompt)
+                    .set_negative_prompt(negative_prompt)
+                    .set_output_path(output)
+                    .generate()
+                    .unwrap();
+            }
+        },
+        "img2img" => {
+            if let Context::ImageToImage(mut image_to_image) = context.create_context().unwrap() {
+                image_to_image
+                    .set_prompt(prompt)
+                    .set_negative_prompt(negative_prompt)
+                    .set_image(ImageType::Path(init_img.expect("no init img")))
+                    .set_output_path(output)
+                    .generate()
+                    .unwrap();
+            }
+        },
+        "convert" => {
+            println!("Error: convert!");
+        },
+        _ => {
+            println!("Error: this mode isn't supported!");
         }
-        Ok(Context::ImageToImage(mut image_to_image)) => {
-            println!("[INFO]ImageToImage");
-            image_to_image
-                .set_prompt(prompt)
-                .set_image(ImageType::Path(init_img.expect("no init img")))
-                .set_output_path(output)
-                .generate()?;
-        }
-        Err(e) => return Err(e.into()),
     }
 
     return Ok(());
