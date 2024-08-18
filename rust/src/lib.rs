@@ -60,6 +60,19 @@ pub struct BaseContext<'a> {
 }
 pub trait BaseFunction<'a> {
     fn base(&mut self) -> &mut BaseContext<'a>;
+    
+    fn set_input_id_images_dir(&mut self, input_id_images_dir: &str) -> &mut Self {
+        {
+            self.base().input_id_images_dir = input_id_images_dir.to_string();
+        }
+        self
+    }
+    fn set_normalize_input(&mut self, normalize_input: bool) -> &mut Self {
+        {
+            self.base().normalize_input = normalize_input;
+        }
+        self
+    }
     fn set_prompt(&mut self, prompt: &str) -> &mut Self {
         {
             self.base().prompt = prompt.to_string();
@@ -75,6 +88,54 @@ pub trait BaseFunction<'a> {
     fn set_negative_prompt(&mut self, negative_prompt: &str) -> &mut Self {
         {
             self.base().negative_prompt = negative_prompt.to_string();
+        }
+        self
+    }
+    fn set_cfg_scale(&mut self, cfg_scale: f32) -> &mut Self {
+        {
+            self.base().cfg_scale = cfg_scale;
+        }
+        self
+    }
+    fn set_sample_method(&mut self, sample_method: SampleMethodT) -> &mut Self {
+        {
+            self.base().sample_method = sample_method;
+        }
+        self
+    }
+    fn set_sample_steps(&mut self, sample_steps: i32) -> &mut Self {
+        {
+            self.base().sample_steps = sample_steps;
+        }
+        self
+    }
+    fn set_style_ratio(&mut self, style_ratio: f32) -> &mut Self {
+        {
+            self.base().style_ratio = style_ratio;
+        }
+        self
+    }
+    fn set_control_strength(&mut self, control_strength: f32) -> &mut Self {
+        {
+            self.base().control_strength = control_strength;
+        }
+        self
+    }
+    fn set_seed(&mut self, seed: i32) -> &mut Self {
+        {
+            self.base().seed = seed;
+        }
+        self
+    }
+    fn set_batch_count(&mut self, batch_count: i32) -> &mut Self {
+        {
+            self.base().batch_count = batch_count;
+        }
+        self
+    }
+    fn set_clip_skip(&mut self, clip_skip: i32) -> &mut Self {
+        {
+            self.base().clip_skip = clip_skip;
         }
         self
     }
@@ -113,7 +174,17 @@ impl Quantization {
 }
 
 impl StableDiffusion {
-    pub fn new(task: Task, model_path: &str) -> StableDiffusion {
+    pub fn new(task: Task, model_path: &str, 
+        taesd_path: &str, 
+        lora_model_dir: &str, embed_dir: &str, id_embed_dir: &str,
+        vae_tiling: bool,
+
+        rng_type: RngTypeT,
+        schedule: ScheduleT,
+        clip_on_cpu: bool,
+        control_net_cpu: bool,
+        vae_on_cpu: bool
+    ) -> StableDiffusion {
         let vae_decode_only = match task {
             Task::TextToImage => true,
             Task::ImageToImage => false,
@@ -122,20 +193,20 @@ impl StableDiffusion {
             task: task,
             model_path: model_path.to_string(),
             vae_path: "".to_string(),
-            taesd_path: "".to_string(),
+            taesd_path: taesd_path.to_string(),
             control_net_path: "".to_string(),
-            lora_model_dir: "".to_string(),
-            embed_dir: "".to_string(),
-            id_embed_dir: "".to_string(),
+            lora_model_dir: lora_model_dir.to_string(),
+            embed_dir: embed_dir.to_string(),
+            id_embed_dir: id_embed_dir.to_string(),
             vae_decode_only: vae_decode_only,
-            vae_tiling: false,
+            vae_tiling: vae_tiling,
             n_threads: -1,
             wtype: SdTypeT::SdTypeCount,
-            rng_type: RngTypeT::StdDefaultRng,
-            schedule: ScheduleT::DEFAULT,
-            clip_on_cpu: false,
-            control_net_cpu: false,
-            vae_on_cpu: false,
+            rng_type: rng_type,
+            schedule: schedule,
+            clip_on_cpu: clip_on_cpu,
+            control_net_cpu: control_net_cpu,
+            vae_on_cpu: vae_on_cpu,
         }
     }
     pub fn create_context(&self) -> Result<Context, WasmedgeSdErrno> {

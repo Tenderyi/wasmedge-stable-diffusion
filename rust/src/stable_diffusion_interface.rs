@@ -100,7 +100,7 @@ pub enum RngTypeT {
     StdDefaultRng = 0,
     CUDARng = 1,
 }
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum SampleMethodT {
     EULERA = 0,
     EULER = 1,
@@ -112,7 +112,7 @@ pub enum SampleMethodT {
     LCM = 7,
     NSAMPLEMETHODS = 8,
 }
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum ScheduleT {
     DEFAULT = 0,
     DISCRETE = 1,
@@ -134,6 +134,35 @@ fn parse_image(image: &ImageType) -> (i32, i32) {
         }
     };
 }
+
+impl SampleMethodT {
+    pub fn from_index(index: usize) -> Result<SampleMethodT, String> {
+        match index {
+            0 => Ok(SampleMethodT::EULERA),
+            1 => Ok(SampleMethodT::EULER),
+            2 => Ok(SampleMethodT::HEUN),
+            3 => Ok(SampleMethodT::DPM2),
+            4 => Ok(SampleMethodT::DPMPP2SA),
+            5 => Ok(SampleMethodT::DPMPP2M),
+            6 => Ok(SampleMethodT::DPMPP2Mv2),
+            7 => Ok(SampleMethodT::LCM),
+            _ => Ok(SampleMethodT::NSAMPLEMETHODS),
+        }
+    }
+}
+
+impl ScheduleT {
+    pub fn from_index(index: usize) -> Result<ScheduleT, String> {
+        match index {
+            0 => Ok(ScheduleT::DEFAULT),
+            1 => Ok(ScheduleT::DISCRETE),
+            2 => Ok(ScheduleT::KARRAS),
+            3 => Ok(ScheduleT::AYS),
+            _ => Ok(ScheduleT::NSCHEDULES),
+        }
+    }
+}
+
 pub unsafe fn convert(
     model_path: &str,
     vae_model_path: &str,
