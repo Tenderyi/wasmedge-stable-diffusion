@@ -60,7 +60,7 @@ extern crate std;
 #[cfg(feature = "std")]
 impl std::error::Error for WasmedgeSdErrno {}
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum SdTypeT {
     SdTypeF32 = 0,
     SdTypeF16 = 1,
@@ -95,7 +95,7 @@ pub enum SdTypeT {
     SdTypeBf16 = 30,
     SdTypeCount = 31,
 }
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum RngTypeT {
     StdDefaultRng = 0,
     CUDARng = 1,
@@ -133,6 +133,46 @@ fn parse_image(image: &ImageType) -> (i32, i32) {
             (path.as_ptr() as i32, path.len() as i32)
         }
     };
+}
+
+//as for wtype
+impl SdTypeT{
+    pub fn from_index(index: usize) -> Result<SdTypeT, String> {
+        match index {
+            0 => Ok(SdTypeT::SdTypeF32),
+            1 => Ok(SdTypeT::SdTypeF16),
+            2 => Ok(SdTypeT::SdTypeQ4_0),
+            3 => Ok(SdTypeT::SdTypeQ4_1),
+            //4
+            //5
+            6 => Ok(SdTypeT::SdTypeQ5_0),
+            7 => Ok(SdTypeT::SdTypeQ5_1),
+            8 => Ok(SdTypeT::SdTypeQ8_0),
+            9 => Ok(SdTypeT::SdTypeQ8_1),
+            10 => Ok(SdTypeT::SdTypeQ2K),
+            11 => Ok(SdTypeT::SdTypeQ3K),
+            12 => Ok(SdTypeT::SdTypeQ4K),
+            13 => Ok(SdTypeT::SdTypeQ5K),
+            14 => Ok(SdTypeT::SdTypeQ6K),
+            15 => Ok(SdTypeT::SdTypeQ8K),
+            16 => Ok(SdTypeT::SdTypeIq2Xxs),
+            17 => Ok(SdTypeT::SdTypeIq2Xs),
+            18 => Ok(SdTypeT::SdTypeIq3Xxs),
+            19 => Ok(SdTypeT::SdTypeIq1S), 
+            20 => Ok(SdTypeT::SdTypeIq4Nl),
+            21 => Ok(SdTypeT::SdTypeIq3S),
+            22 => Ok(SdTypeT::SdTypeIq2S),
+            23 => Ok(SdTypeT::SdTypeIq4Xs),
+            24 => Ok(SdTypeT::SdTypeI8),
+            25 => Ok(SdTypeT::SdTypeI16),
+            26 => Ok(SdTypeT::SdTypeI32),
+            27 => Ok(SdTypeT::SdTypeI64),
+            28 => Ok(SdTypeT::SdTypeF64),
+            29 => Ok(SdTypeT::SdTypeIq1M), 
+            30 => Ok(SdTypeT::SdTypeBf16),
+            _ => Ok(SdTypeT::SdTypeCount),
+        }
+    }
 }
 
 impl SampleMethodT {
